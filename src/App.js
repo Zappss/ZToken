@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import SimpleStorageContract from '../build/contracts/SimpleStorage.json'
+import MintableToken from '../build/contracts/MintableToken.json'
 import DutchAuction from '../build/contracts/DutchAuction.json'
 import getWeb3 from './utils/getWeb3'
 
@@ -27,7 +27,6 @@ class App extends Component {
       this.setState({
         web3: results.web3
       })
-      console.log(this.state.web3);
       // Instantiate contract once web3 provided.
       this.instantiateContract()
     })
@@ -37,31 +36,25 @@ class App extends Component {
   }
 
   instantiateContract() {
-    /*
-     * SMART CONTRACT EXAMPLE
-     *
-     * Normally these functions would be called in the context of a
-     * state management library, but for convenience I've placed them here.
-     */
-
     const contract = require('truffle-contract')
-    const simpleStorage = contract(SimpleStorageContract)
-    simpleStorage.setProvider(this.state.web3.currentProvider)
+    const auction = contract(DutchAuction)
+    const token = contract(MintableToken)
+    auction.setProvider(this.state.web3.currentProvider)
+    token.setProvider(this.state.web3.currentProvider)
+
+    token.deployed().then((instance) => {
+    })
     // Declaring this for later so we can chain functions on SimpleStorage.
-    var simpleStorageInstance
+    var auctionInstance;
 
     // Get accounts.
     this.state.web3.eth.getAccounts((error, accounts) => {
-      simpleStorage.deployed().then((instance) => {
-        simpleStorageInstance = instance
-
+      auction.deployed().then((instance) => {
+        auctionInstance = instance
         // Stores a given value, 5 by default.
-        return simpleStorageInstance.set(5, {from: accounts[0]});
+        return auctionInstance.calcTokenPrice();
       }).then((result) => {
         // Get the value from the contract to prove it worked.
-        return simpleStorageInstance.get.call(accounts[0])
-      }).then((result) => {
-        // Update state with the result.
         return this.setState({ storageValue: result.c[0] })
       })
     })
@@ -71,7 +64,7 @@ class App extends Component {
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-            <a href="#" className="pure-menu-heading pure-menu-link">Truffle Box</a>
+            <a href="#" className="pure-menu-heading pure-menu-link">Z Token</a>
         </nav>
 
         <main className="container">
@@ -79,10 +72,8 @@ class App extends Component {
             <div className="pure-u-1-1">
               <h1>Good to Go!</h1>
               <p>Your Truffle Box is installed and ready.</p>
-              <h2>Smart Contract Example</h2>
-              <p>If your contracts compiled and migrated successfully, below will show a stored value of 5 (by default).</p>
-              <p>Try changing the value stored on <strong>line 59</strong> of App.js.</p>
-              <p>The stored value is: {this.state.storageValue}</p>
+              <h2>Bid on the dutch auction</h2>
+              <p>Current price: {this.state.storageValue} wei/token </p>
             </div>
           </div>
         </main>
