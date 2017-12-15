@@ -14,8 +14,12 @@ class App extends Component {
 
     this.state = {
       storageValue: 0,
-      web3: null
+      auctionContract: null,
+      web3: null,
+      accounts: [],
     }
+
+    this.handleBid = this.handleBid.bind(this);
   }
 
   componentWillMount() {
@@ -42,8 +46,6 @@ class App extends Component {
     auction.setProvider(this.state.web3.currentProvider)
     token.setProvider(this.state.web3.currentProvider)
 
-    token.deployed().then((instance) => {
-    })
     // Declaring this for later so we can chain functions on SimpleStorage.
     var auctionInstance;
 
@@ -52,11 +54,23 @@ class App extends Component {
       auction.deployed().then((instance) => {
         auctionInstance = instance
         // Stores a given value, 5 by default.
+        this.setState({
+          accounts: accounts,
+          auctionContract: auctionInstance
+        })
         return auctionInstance.calcTokenPrice();
       }).then((result) => {
         // Get the value from the contract to prove it worked.
         return this.setState({ storageValue: result.c[0] })
       })
+    })
+  }
+
+  handleBid() {
+    return this.state.web3.eth.sendTransaction({to:this.state.auctionContract.address, from:this.state.accounts[0], value:200000}, (err, txHash) => {
+      if(!err){
+        console.log("Bid successful. Hash: ", txHash);
+      }
     })
   }
 
@@ -73,6 +87,7 @@ class App extends Component {
               <h1>Good to Go!</h1>
               <p>Your Truffle Box is installed and ready.</p>
               <h2>Bid on the dutch auction</h2>
+              <button onClick={this.handleBid}> BID </button>
               <p>Current price: {this.state.storageValue} wei/token </p>
             </div>
           </div>
