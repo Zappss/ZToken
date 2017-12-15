@@ -67,7 +67,7 @@ import './Ownable.sol';
      /// @dev Contract constructor function sets owner
      /// @param _wallet address Destination wallet
      /// @param _ceiling uint Auction ceiling
-     function DutchAuction(address _wallet, uint _ceiling)
+     function DutchAuction(address _wallet, address _token, uint _ceiling)
          Ownable()
          public
      {
@@ -75,7 +75,7 @@ import './Ownable.sol';
              revert();
 
          //owner = msg.sender;
-         token = createTokenContract();
+         token = MintableToken(_token);
          wallet = _wallet;
          ceiling = _ceiling;
          stage = Stages.AuctionDeployed;
@@ -120,7 +120,6 @@ import './Ownable.sol';
          bid(msg.sender);
      }
 
-     event Degu(uint bid);
      /// @dev Allows to send a bid to the auction
      /// @param receiver address Bid will be assigned to this address
      function bid(address receiver)

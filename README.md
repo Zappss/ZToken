@@ -6,7 +6,8 @@ Example Dapp for a ficional ICO
 - [X] Create Repository
 - [X] Initialize TruffleBox(Truffle + React)
 - [X] Import existing crowdasle contracts
-- [ ] Integrate with Metamask
+- [X] Integrate with Metamask
+- [X] Set up migration process
 - [ ] Simple buttons for contract function calls
 - [ ] Implement the "Bid" function
 - [ ] Implement data fetch functions
