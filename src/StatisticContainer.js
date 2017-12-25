@@ -1,6 +1,6 @@
 import React from 'react';
-import { Container } from 'reactstrap';
-import StatisctsCard from './StatisctsCard';
+import { Container, CardGroup, CardDeck } from 'reactstrap';
+import DetailCard from './DetailCard';
 
 const StatisticContainer = ({saleData}) => {
 
@@ -11,9 +11,14 @@ const StatisticContainer = ({saleData}) => {
   return(
     <div>
       <Container>
-        Graph goes Here
+        <CardDeck>
+          <DetailCard text="Current Price" title={saleData.currentPrice + " ETH / Token"} />
+          <DetailCard text="Latest Price" title={saleData.currentPrice + saleData.decreaseRate} />
+          <DetailCard text="Latest Price" title={saleData.currentPrice + saleData.decreaseRate} />
+          <DetailCard text="Cap Reached" title={"0%"} />
+          <DetailCard text="Time Remaining" title={"99h"} />
+        </CardDeck>
       </Container>
-      <StatisctsCard />
     </div>
   )
 

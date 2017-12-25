@@ -5,6 +5,7 @@ import getWeb3 from './utils/getWeb3'
 
 import MainAction from './MainAction.js'
 import StatisticContainer from './StatisticContainer.js'
+import ComplexBid from './ComplexBid.js'
 import { Container, Row, Col } from 'reactstrap';
 
 import './css/oswald.css'
@@ -19,15 +20,13 @@ class App extends Component {
 
     this.state = {
       saleContract: null,
-      saleState: {
-        currentPrice: null,
-      },
       saleData: null,
       web3: null,
       accounts: [],
     }
 
     this.handleBid = this.handleBid.bind(this);
+    this.advanceBlock = this.advanceBlock.bind(this);
     this.fetchNode = this.fetchNode.bind(this);
   }
 
@@ -49,10 +48,12 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log("Inside Did Mount");
-    // setInterval(this.fetchNode,
-    //   10000
-    // );
+    setInterval(this.fetchNode,
+      10000
+    );
+    setInterval(this.advanceBlock,
+      10000
+    );
   }
 
   instantiateContract() {
@@ -74,22 +75,32 @@ class App extends Component {
           accounts: accounts,
           auctionContract: auctionInstance
         })
-        return auctionInstance.calcTokenPrice();
-      }).then((result) => {
-        // Get the value from the contract to prove it worked.
-        return this.setState({ saleState: { ...this.state.saleState, currentPrice: result} });
+        return this.fetchNode()
       })
     })
   }
 
+  advanceBlock(){
+    console.log("inside advanceBlock");
+    this.state.web3.currentProvider.sendAsync({
+      jsonrpc: '2.0',
+      method: 'evm_mine',
+      id: Date.now(),
+    }, function(err, res){
+      if(err){
+        console.log("err", err);
+      } else {
+        console.log("res",res);
+      }
+    })
+  }
+
   fetchNode(){
-    console.log("Inside fetch node");
     if(this.state.auctionContract == null) {
       return
     }
 
     let saleState = {}
-    console.log(this.state.auctionContract);
     return this.state.auctionContract.startTime()
     .then((result) => {
       saleState.startTime = result;
@@ -100,16 +111,27 @@ class App extends Component {
       return this.state.auctionContract.totalReceived()
     })
     .then((total) => {
-      saleState.totalReceived = total;
+      saleState.totalReceived = total.toNumber();
+      return this.state.auctionContract.inicialPrice()
+    })
+    .then((price) => {
+      saleState.inicialPrice = price.toNumber();
+      return this.state.auctionContract.decreaseRate()
+    })
+    .then((rate) => {
+      saleState.decreaseRate = rate.toNumber()
+      return this.state.auctionContract.calcTokenPrice()
+    })
+    .then((price) => {
+      saleState.currentPrice = this.state.web3.fromWei(price.toNumber(), 'ether')
       this.setState({
         saleData: saleState,
       })
-      console.log(this.state.saleData);
     })
   }
 
   handleBid() {
-    return this.state.web3.eth.sendTransaction({to:this.state.auctionContract.address, from:this.state.accounts[0], value:200000}, (err, txHash) => {
+    return this.state.web3.eth.sendTransaction({to:this.state.auctionContract.address, from:this.state.accounts[0], value:1000000000000000000, nonce:189}, (err, txHash) => {
       if(!err){
         console.log("Bid successful. Hash: ", txHash);
       }
@@ -129,30 +151,8 @@ class App extends Component {
             <StatisticContainer saleData={this.state.saleData}/>
           </Row>
         </Container>
-
-        {/* <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
-              <h1 className="splash-head">Z Token</h1>
-              <h2>Bid on the dutch auction</h2>
-              <button className="pure-button pure-button-primary" onClick={this.handleBid}> BID </button>
-              <p>Current price: {this.state.storageValue} wei/token </p>
-            </div>
-          </div>
-        </main> */}
-
       </div>
     );
   }
 }
-
-// saleState: {
-//   startTime: null,
-//   endTime: null,
-//   totalReceived: null,
-//   inicialPrice: null,
-//   decreaseRate: null,
-//   currentPrice: null,
-// },
-
 export default App

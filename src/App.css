@@ -3,6 +3,7 @@
 body,
 .pure-g [class*=pure-u] {
   font-family: 'Open Sans', sans-serif;
+  background-color: blue
 }
 
 h1, h2, h3 {
@@ -16,6 +17,9 @@ code {
   background: #eee;
 }
 
+div {
+  border-color: green;
+}
 .container {
   box-sizing: border-box;
   width: 100%;

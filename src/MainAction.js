@@ -8,10 +8,14 @@ const MainAction = ({sale,accounts,bidHandler}) => {
   }
 
   return(
-    <Jumbotron>
+    <Jumbotron className="text-center">
       <h1 className="display-3">Z Project</h1>
-      <p className="">Changing the future of business using the power of Blockchain</p>
-      <Button size="lg" color="primary" onClick={bidHandler}>Buy Tokens</Button>
+      <p className="">Changing the future of the internet using the power of Blockchain</p>
+      <p className="lead">
+         <Button size="lg" color="primary" onClick={bidHandler}>Buy Tokens</Button>
+      </p>
+
+      <Button size="sm" color="secondary" > More buying options</Button>
     </Jumbotron>
   )
 
